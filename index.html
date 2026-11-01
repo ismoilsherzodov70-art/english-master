@@ -20,6 +20,15 @@ button{border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:1
 .question-label{color:var(--blue);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px}.question{font-size:clamp(25px,6vw,34px);font-weight:850;margin:12px 0 8px;overflow-wrap:anywhere}.hint{color:var(--muted);margin:0 0 23px}.answers{display:grid;gap:11px}.answer{background:#17263b;border:1px solid #3b506e;color:var(--text);text-align:left;display:flex;align-items:center;gap:12px}.answer .letter{width:30px;height:30px;border-radius:9px;background:#2b405d;display:grid;place-items:center;color:#b9d7ff;flex-shrink:0}.answer.correct{border-color:var(--green);background:#123c36}.answer.wrong{border-color:var(--red);background:#452633}.answer:disabled{cursor:default;opacity:1}
 .feedback{margin-top:16px;padding:13px 15px;border-radius:13px;background:#111d2e;color:var(--muted);line-height:1.5}.feedback.good{color:#8df0c3}.feedback.bad{color:#ff9aaa}.next{margin-top:15px}
 .result{text-align:center}.result .trophy{font-size:58px}.result h2{font-size:30px;margin:8px}.result p{color:var(--muted);line-height:1.5}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 18px}
+.tab{padding:11px 8px;background:#19263a;color:#c6d4e8;border:1px solid #344a67;font-size:13px}
+.tab.active{background:#3569a8;color:white;border-color:#72b5ff}
+.panel{background:linear-gradient(145deg,rgba(34,51,77,.98),rgba(25,38,58,.98));border:1px solid #354761;border-radius:25px;padding:24px}
+.leader-table{width:100%;border-collapse:collapse;margin-top:14px}
+.leader-table th,.leader-table td{padding:12px 8px;text-align:left;border-bottom:1px solid #40516a}
+.leader-table th{color:#9eb4d2;font-size:12px}
+.leader-table td:last-child,.leader-table th:last-child{text-align:right}
+.creator{color:#9eb4d2;text-align:center;margin-top:16px;font-size:14px}
 .footer{text-align:center;color:#8291a8;font-size:12px;margin-top:22px}
 @media(max-width:430px){.hero,.game,.result,.levels{padding:21px 17px}.level-grid{grid-template-columns:1fr}.top{margin-bottom:16px}}
 </style>
@@ -27,6 +36,12 @@ button{border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:1
 <body>
 <div class="wrap">
   <header class="top"><div class="brand">🌍 ENGLISH <span>MASTER</span></div><div class="pill">Учи играя ✨</div></header>
+
+  <nav class="tabs" aria-label="Разделы">
+    <button class="tab active" id="tabHome" onclick="openTab('home')">🏠 Главная</button>
+    <button class="tab" id="tabLeaders" onclick="openTab('leaders')">🏆 Лидеры</button>
+    <button class="tab" id="tabAbout" onclick="openTab('about')">ℹ️ О проекте</button>
+  </nav>
 
   <section id="home" class="hero">
     <div class="logo">🎓</div>
@@ -77,7 +92,21 @@ button{border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:1
     <button class="primary full" onclick="showLevels()">Играть ещё раз</button>
     <button class="secondary full" style="margin-top:10px" onclick="goHome()">На главную</button>
   </section>
-  <div class="footer">English Master · Бесплатная учебная игра</div>
+  <section id="leaders" class="panel hidden">
+    <h2 style="margin:0 0 6px">🏆 Таблица лидеров</h2>
+    <p style="color:var(--muted);margin:0">Лучшие результаты на этом устройстве.</p>
+    <div id="leaderContent"></div>
+    <button class="secondary full" style="margin-top:16px" onclick="openTab('home')">← На главную</button>
+  </section>
+
+  <section id="about" class="panel hidden">
+    <h2 style="margin-top:0">ℹ️ О проекте</h2>
+    <p style="color:var(--muted);line-height:1.7">English Master — учебная игра для практики английских слов. Выбирай сложность, отвечай на вопросы и улучшай свой результат.</p>
+    <div class="creator">Created by <strong>Ismoil Sherzodov</strong></div>
+    <button class="secondary full" style="margin-top:18px" onclick="openTab('home')">← На главную</button>
+  </section>
+
+  <div class="footer">English Master · Бесплатная учебная игра<br>Created by Ismoil Sherzodov</div>
 </div>
 <script>
 const bank={
@@ -94,7 +123,28 @@ let questions=[],index=0,score=0,lives=3,streak=0,correct=0,locked=false,level='
 const $=id=>document.getElementById(id);
 function best(){return Number(localStorage.getItem('em_best')||0)}
 function updateBest(){ $('bestHome').textContent=best(); }
-function hideAll(){['home','levels','game','result'].forEach(x=>$(x).classList.add('hidden'))}
+function hideAll(){['home','levels','game','result','leaders','about'].forEach(x=>$(x).classList.add('hidden'))}
+function openTab(tab){
+ hideAll();
+ if(tab==='leaders'){ $('leaders').classList.remove('hidden'); renderLeaders(); }
+ else if(tab==='about'){ $('about').classList.remove('hidden'); }
+ else { $('home').classList.remove('hidden'); updateBest(); }
+ ['Home','Leaders','About'].forEach(k=>$('tab'+k).classList.toggle('active',k.toLowerCase()===tab));
+}
+function getLeaders(){try{return JSON.parse(localStorage.getItem('em_leaders')||'[]')}catch(e){return []}}
+function saveLeader(){
+ let name=prompt('Введи имя для таблицы лидеров:','Player');
+ if(name===null)name='Player';
+ name=name.trim().slice(0,18)||'Player';
+ let rows=getLeaders();rows.push({name,score,date:new Date().toLocaleDateString()});
+ rows.sort((a,b)=>b.score-a.score);localStorage.setItem('em_leaders',JSON.stringify(rows.slice(0,10)));
+}
+function renderLeaders(){
+ let rows=getLeaders(),box=$('leaderContent');
+ if(!rows.length){box.innerHTML='<p style="color:var(--muted);padding:18px 0">Пока нет результатов. Сыграй первый раунд!</p>';return}
+ box.innerHTML='<table class="leader-table"><thead><tr><th>Место</th><th>Игрок</th><th>Очки</th></tr></thead><tbody>'+rows.map((r,i)=>`<tr><td>${['🥇','🥈','🥉'][i]||i+1}</td><td>${escapeText(r.name)}</td><td><strong>${r.score}</strong></td></tr>`).join('')+'</tbody></table><p style="color:var(--muted);font-size:12px">Результаты хранятся только в этом браузере.</p>';
+}
+function escapeText(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function goHome(){hideAll();$('home').classList.remove('hidden');updateBest()}
 function showLevels(){hideAll();$('levels').classList.remove('hidden')}
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
@@ -132,6 +182,7 @@ function nextQuestion(){if(lives===0||index===questions.length-1){finish();retur
 function finish(){
  hideAll();$('result').classList.remove('hidden');$('progress').style.width='100%';
  let old=best();if(score>old)localStorage.setItem('em_best',score);
+ saveLeader();
  let b=best();$('trophy').textContent=correct>=12?'🏆':correct>=7?'🥈':'🌟';
  $('resultTitle').textContent=correct>=12?'Потрясающе!':correct>=7?'Хорошая работа!':'Продолжай тренироваться!';
  $('resultText').textContent=`Ты ответил правильно на ${correct} из 15 вопросов. ${lives===0?'Жизни закончились, но ты можешь попробовать снова!':'Отличная тренировка — продолжай учиться!'}`;
