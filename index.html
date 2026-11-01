@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="English Master — бесплатная игра-викторина для изучения английского языка. Учите слова, проходите уровни и набирайте очки!">
+<meta name="keywords" content="английский, игра, English Master, английские слова, викторина">
+<meta name="theme-color" content="#101827">
+<title>English Master — учи английский играя</title>
+<style>
+:root{--bg:#101827;--panel:#19263a;--panel2:#22334d;--text:#f5f7fb;--muted:#a9b6c9;--blue:#68a8ff;--green:#42d69a;--red:#ff687b;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0%,#243c60 0,transparent 35%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+.wrap{width:min(720px,100%);margin:auto;padding:22px 16px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}.brand{font-weight:900;font-size:21px;letter-spacing:.3px}.brand span{color:var(--blue)}.pill{background:var(--panel);border:1px solid #34445d;border-radius:99px;padding:9px 13px;color:var(--muted);font-size:13px}
+.hero,.game,.result,.levels{background:linear-gradient(145deg,rgba(34,51,77,.98),rgba(25,38,58,.98));border:1px solid #354761;border-radius:25px;padding:25px;box-shadow:0 18px 50px #0003}
+.hero{text-align:center;padding:36px 24px}.logo{font-size:56px;margin-bottom:8px}.hero h1{font-size:clamp(30px,7vw,44px);margin:0 0 8px}.hero p{color:var(--muted);line-height:1.6;margin:0 auto 23px;max-width:440px}
+button{border:0;border-radius:14px;padding:14px 18px;font-weight:800;font-size:15px;cursor:pointer;transition:.15s}button:active{transform:scale(.98)}.primary{background:linear-gradient(135deg,#72b5ff,#4689ef);color:#07172b;box-shadow:0 8px 24px #4689ef44}.secondary{background:var(--panel2);color:var(--text);border:1px solid #405675}.full{width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.stat{background:#111d2e;border:1px solid #31445f;border-radius:15px;padding:13px;text-align:center}.stat b{display:block;font-size:21px}.stat small{color:var(--muted)}
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.level{background:#17253a;border:1px solid #405675;color:var(--text);padding:16px 8px}.level strong{display:block;margin-bottom:4px}.level small{color:var(--muted);font-weight:500}
+.hidden{display:none!important}.progress-row{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin-bottom:9px}.bar{height:9px;background:#101b2c;border-radius:99px;overflow:hidden;margin-bottom:24px}.fill{height:100%;width:0;background:linear-gradient(90deg,#55d6a0,#72b5ff);transition:width .25s}
+.question-label{color:var(--blue);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px}.question{font-size:clamp(25px,6vw,34px);font-weight:850;margin:12px 0 8px;overflow-wrap:anywhere}.hint{color:var(--muted);margin:0 0 23px}.answers{display:grid;gap:11px}.answer{background:#17263b;border:1px solid #3b506e;color:var(--text);text-align:left;display:flex;align-items:center;gap:12px}.answer .letter{width:30px;height:30px;border-radius:9px;background:#2b405d;display:grid;place-items:center;color:#b9d7ff;flex-shrink:0}.answer.correct{border-color:var(--green);background:#123c36}.answer.wrong{border-color:var(--red);background:#452633}.answer:disabled{cursor:default;opacity:1}
+.feedback{margin-top:16px;padding:13px 15px;border-radius:13px;background:#111d2e;color:var(--muted);line-height:1.5}.feedback.good{color:#8df0c3}.feedback.bad{color:#ff9aaa}.next{margin-top:15px}
+.result{text-align:center}.result .trophy{font-size:58px}.result h2{font-size:30px;margin:8px}.result p{color:var(--muted);line-height:1.5}
+.footer{text-align:center;color:#8291a8;font-size:12px;margin-top:22px}
+@media(max-width:430px){.hero,.game,.result,.levels{padding:21px 17px}.level-grid{grid-template-columns:1fr}.top{margin-bottom:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><div class="brand">🌍 ENGLISH <span>MASTER</span></div><div class="pill">Учи играя ✨</div></header>
+
+  <section id="home" class="hero">
+    <div class="logo">🎓</div>
+    <h1>English Master</h1>
+    <p>Проверь свои знания английского! Отвечай на вопросы, открывай новые уровни и побей свой рекорд.</p>
+    <div class="stats">
+      <div class="stat"><b id="bestHome">0</b><small>🏆 Рекорд</small></div>
+      <div class="stat"><b>3 ❤️</b><small>Жизни за игру</small></div>
+      <div class="stat"><b>15</b><small>Вопросов в раунде</small></div>
+    </div>
+    <button class="primary full" onclick="showLevels()">Начать игру →</button>
+  </section>
+
+  <section id="levels" class="levels hidden">
+    <h2 style="margin:0 0 6px">Выбери сложность</h2><p style="color:var(--muted);margin:0">Начни с подходящего уровня.</p>
+    <div class="level-grid">
+      <button class="level" onclick="startGame('easy')"><strong>🟢 Лёгкий</strong><small>Базовые слова</small></button>
+      <button class="level" onclick="startGame('medium')"><strong>🟡 Средний</strong><small>Школьный уровень</small></button>
+      <button class="level" onclick="startGame('hard')"><strong>🔴 Сложный</strong><small>Продвинутые слова</small></button>
+    </div>
+    <button class="secondary full" style="margin-top:14px" onclick="goHome()">← Назад</button>
+  </section>
+
+  <section id="game" class="game hidden">
+    <div class="progress-row"><span id="levelName">Лёгкий уровень</span><span id="counter">Вопрос 1/15</span></div>
+    <div class="bar"><div class="fill" id="progress"></div></div>
+    <div class="stats" style="margin:0 0 22px">
+      <div class="stat"><b id="score">0</b><small>⭐ Очки</small></div>
+      <div class="stat"><b id="lives">❤️❤️❤️</b><small>Жизни</small></div>
+      <div class="stat"><b id="streak">0</b><small>🔥 Серия</small></div>
+    </div>
+    <div class="question-label">Выбери правильный перевод</div>
+    <div class="question" id="word">Apple</div>
+    <p class="hint" id="instruction">Что означает это слово?</p>
+    <div class="answers" id="answers"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <button id="nextBtn" class="primary full next hidden" onclick="nextQuestion()">Следующий вопрос →</button>
+  </section>
+
+  <section id="result" class="result hidden">
+    <div class="trophy" id="trophy">🏆</div><h2 id="resultTitle">Отличная работа!</h2>
+    <p id="resultText"></p>
+    <div class="stats">
+      <div class="stat"><b id="finalScore">0</b><small>⭐ Очки</small></div>
+      <div class="stat"><b id="correctCount">0/15</b><small>✅ Верно</small></div>
+      <div class="stat"><b id="bestFinal">0</b><small>🏆 Рекорд</small></div>
+    </div>
+    <button class="primary full" onclick="showLevels()">Играть ещё раз</button>
+    <button class="secondary full" style="margin-top:10px" onclick="goHome()">На главную</button>
+  </section>
+  <div class="footer">English Master · Бесплатная учебная игра</div>
+</div>
+<script>
+const bank={
+easy:[
+['Apple','Яблоко',['Стол','Яблоко','Книга','Окно']],['Book','Книга',['Книга','Ручка','Дом','Мяч']],['Water','Вода',['Огонь','Молоко','Вода','Хлеб']],['School','Школа',['Парк','Школа','Магазин','Комната']],['Friend','Друг',['Друг','Учитель','Сосед','Брат']],['Beautiful','Красивый',['Громкий','Красивый','Быстрый','Тёмный']],['Morning','Утро',['Вечер','Ночь','Утро','День']],['House','Дом',['Дом','Машина','Дерево','Дорога']],['Family','Семья',['Семья','Команда','Класс','Город']],['Happy','Счастливый',['Грустный','Уставший','Счастливый','Злой']],['Dog','Собака',['Кошка','Собака','Птица','Лошадь']],['Bread','Хлеб',['Сыр','Рис','Хлеб','Яйцо']],['Red','Красный',['Синий','Зелёный','Белый','Красный']],['Run','Бежать',['Бежать','Спать','Читать','Петь']],['Small','Маленький',['Большой','Маленький','Длинный','Высокий']]
+],
+medium:[
+['Choose','Выбирать',['Забывать','Выбирать','Объяснять','Строить']],['Journey','Путешествие',['Путешествие','Погода','Здание','Встреча']],['Improve','Улучшать',['Улучшать','Терять','Покупать','Сравнивать']],['Although','Хотя',['Потому что','Поэтому','Хотя','Если']],['Careful','Осторожный',['Смелый','Осторожный','Скучный','Голодный']],['Borrow','Брать взаймы',['Одолжить кому-то','Брать взаймы','Платить','Продавать']],['Enough','Достаточно',['Слишком','Почти','Достаточно','Редко']],['Advice','Совет',['Совет','Ответ','Вопрос','Причина']],['Quiet','Тихий',['Шумный','Тихий','Яркий','Сильный']],['Believe','Верить',['Забывать','Верить','Решать','Надеяться']],['Suddenly','Внезапно',['Медленно','Внезапно','Обычно','Возможно']],['Return','Возвращаться',['Начинать','Возвращаться','Продолжать','Менять']],['Friendly','Дружелюбный',['Дружелюбный','Опасный','Серьёзный','Странный']],['Perhaps','Возможно',['Всегда','Никогда','Возможно','Вместе']],['Crowded','Переполненный',['Пустой','Переполненный','Удобный','Тихий']]
+],
+hard:[
+['Achievement','Достижение',['Предупреждение','Достижение','Поведение','Разрешение']],['Environment','Окружающая среда',['Окружающая среда','Оборудование','Образование','Экономика']],['Reliable','Надёжный',['Редкий','Надёжный','Обычный','Сложный']],['Opportunity','Возможность',['Обязанность','Возможность','Опасность','Предложение']],['Eventually','В конце концов',['Немедленно','Возможно','В конце концов','Случайно']],['Despite','Несмотря на',['Вместо','Несмотря на','Внутри','Кроме']],['Require','Требовать',['Предлагать','Требовать','Отказываться','Разрешать']],['Accurate','Точный',['Точный','Необычный','Полезный','Сложный']],['Concern','Беспокойство',['Уверенность','Беспокойство','Успех','Преимущество']],['Avoid','Избегать',['Избегать','Принимать','Объяснять','Достигать']],['Significant','Значительный',['Незначительный','Значительный','Временный','Простой']],['Maintain','Поддерживать',['Уничтожать','Поддерживать','Заменять','Скрывать']],['Benefit','Польза',['Ущерб','Польза','Привычка','Условие']],['Determine','Определять',['Определять','Предполагать','Сомневаться','Повторять']],['Consider','Рассматривать',['Игнорировать','Рассматривать','Запоминать','Отменять']]]
+};
+let questions=[],index=0,score=0,lives=3,streak=0,correct=0,locked=false,level='easy';
+const $=id=>document.getElementById(id);
+function best(){return Number(localStorage.getItem('em_best')||0)}
+function updateBest(){ $('bestHome').textContent=best(); }
+function hideAll(){['home','levels','game','result'].forEach(x=>$(x).classList.add('hidden'))}
+function goHome(){hideAll();$('home').classList.remove('hidden');updateBest()}
+function showLevels(){hideAll();$('levels').classList.remove('hidden')}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function startGame(l){
+ level=l;questions=shuffle(bank[l]);index=0;score=0;lives=3;streak=0;correct=0;
+ hideAll();$('game').classList.remove('hidden');
+ $('levelName').textContent={easy:'🟢 Лёгкий уровень',medium:'🟡 Средний уровень',hard:'🔴 Сложный уровень'}[l];
+ render();
+}
+function render(){
+ locked=false;let q=questions[index];
+ $('counter').textContent=`Вопрос ${index+1}/${questions.length}`;
+ $('progress').style.width=(index/questions.length*100)+'%';
+ $('score').textContent=score;$('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);$('streak').textContent=streak;
+ $('word').textContent=q[0];$('instruction').textContent='Что означает это слово?';
+ $('feedback').className='feedback hidden';$('nextBtn').classList.add('hidden');
+ $('answers').innerHTML='';
+ shuffle(q[2]).forEach((answer,i)=>{
+  const b=document.createElement('button');b.className='answer';
+  b.innerHTML=`<span class="letter">${String.fromCharCode(65+i)}</span><span>${answer}</span>`;
+  b.onclick=()=>choose(answer,b);$('answers').appendChild(b);
+ });
+}
+function choose(answer,button){
+ if(locked)return;locked=true;let q=questions[index],isRight=answer===q[1];
+ [...$('answers').children].forEach(b=>{b.disabled=true;if(b.textContent.trim().slice(1).trim()===q[1])b.classList.add('correct')});
+ let fb=$('feedback');
+ if(isRight){correct++;streak++;score+=10+(streak>=3?5:0);fb.textContent=streak>=3?'Верно! Серия продолжается — бонус +5 очков! 🔥':'Правильно! +10 очков ⭐';fb.className='feedback good'}
+ else{lives=Math.max(0,lives-1);streak=0;button.classList.add('wrong');fb.textContent=`Не совсем. Правильный ответ: ${q[1]}. Попробуй запомнить!`;fb.className='feedback bad'}
+ $('score').textContent=score;$('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);$('streak').textContent=streak;
+ $('nextBtn').textContent=(lives===0||index===questions.length-1)?'Посмотреть результат →':'Следующий вопрос →';
+ $('nextBtn').classList.remove('hidden');
+}
+function nextQuestion(){if(lives===0||index===questions.length-1){finish();return}index++;render()}
+function finish(){
+ hideAll();$('result').classList.remove('hidden');$('progress').style.width='100%';
+ let old=best();if(score>old)localStorage.setItem('em_best',score);
+ let b=best();$('trophy').textContent=correct>=12?'🏆':correct>=7?'🥈':'🌟';
+ $('resultTitle').textContent=correct>=12?'Потрясающе!':correct>=7?'Хорошая работа!':'Продолжай тренироваться!';
+ $('resultText').textContent=`Ты ответил правильно на ${correct} из 15 вопросов. ${lives===0?'Жизни закончились, но ты можешь попробовать снова!':'Отличная тренировка — продолжай учиться!'}`;
+ $('finalScore').textContent=score;$('correctCount').textContent=correct+'/15';$('bestFinal').textContent=b;updateBest();
+}
+updateBest();
+</script>
+</body>
+</html>
